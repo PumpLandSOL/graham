@@ -1,0 +1,300 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GRAHAM CAPITAL // NAV-BACKED RESERVE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f5f9;--bg2:#e8ebf4;--panel:#fbfcff;--panel2:#eef1f9;--line:rgba(10,22,51,.14);--line2:rgba(10,22,51,.3);
+  --ink:#0a1633;--sub:rgba(10,22,51,.6);--mut:rgba(10,22,51,.36);
+  --accent:#0052ff;--accent2:#2a6dff;--cream:#f4f5f9;--creamsub:rgba(244,245,249,.62);--red:#d0442e;
+  --disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+  --sh:0 0 0 1px rgba(0,0,0,0);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
+/* faint grid texture */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;
+  background:linear-gradient(90deg,rgba(10,22,51,.03) 1px,transparent 1px),linear-gradient(0deg,rgba(10,22,51,.03) 1px,transparent 1px);
+  background-size:58px 58px;-webkit-mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 82%);mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 82%);opacity:.6}
+a{color:inherit;text-decoration:none}
+.mono{font-family:var(--mono)}.gold{color:var(--accent)}.cd{font-family:var(--mono);color:var(--accent)}.mut{color:var(--mut)}
+.wrap{max-width:1160px;margin:0 auto;padding:0 22px;position:relative;z-index:3}
+/* header */
+header{position:sticky;top:0;z-index:20;backdrop-filter:blur(8px);background:rgba(244,245,249,.86);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:18px;height:66px}
+.logo{display:flex;align-items:center;gap:11px;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.18em;text-transform:uppercase}
+.crest{width:30px;height:30px;border:1px solid var(--ink);display:flex;align-items:center;justify-content:center;color:var(--cream);font-family:var(--mono);font-weight:800;font-size:15px;background:var(--ink)}
+nav.tabs{display:flex;gap:0;margin-left:12px}
+.tab{font-size:11.5px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sub);padding:8px 14px;cursor:pointer;transition:.12s;border:1px solid transparent}
+.tab:hover{color:var(--ink)}.tab.on{color:var(--cream);background:var(--ink);border-color:var(--ink)}
+.right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line2);border-radius:0;padding:12px 20px;cursor:pointer;transition:.14s;background:transparent;color:var(--ink)}
+.btn.gold{background:var(--accent);color:var(--cream);border-color:var(--accent)}
+.btn.gold:hover{background:var(--accent2)}
+.btn.ghost{background:transparent;color:var(--ink)}.btn.ghost:hover{border-color:var(--ink)}
+.btn.connected{background:var(--panel);border:1px solid var(--accent);color:var(--accent);font-size:11px}
+.btn.big{padding:16px 30px;font-size:12.5px}
+section{padding:36px 0}
+.hide{display:none}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(32px,6.4vw,52px);line-height:.98;letter-spacing:-.02em;text-transform:uppercase}
+.eyebrow{font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.lede{color:var(--sub);font-size:14.5px;line-height:1.7;max-width:620px;margin-top:16px}
+/* panels */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:0;padding:26px;position:relative}
+.panel::before{content:"";position:absolute;top:8px;right:8px;width:6px;height:6px;border-top:1px solid var(--line2);border-right:1px solid var(--line2)}
+.ptitle{font-family:var(--disp);font-weight:600;font-size:17px;letter-spacing:.02em;text-transform:uppercase}
+.psub{color:var(--sub);font-size:13px;line-height:1.6;margin-top:7px}
+.grid{display:grid;gap:1px;margin-top:20px}
+.g4{grid-template-columns:repeat(4,1fr);background:var(--line);border:1px solid var(--line)}
+.g3{grid-template-columns:repeat(3,1fr)}.g2{grid-template-columns:1.3fr .9fr;gap:16px}
+@media(max-width:900px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:1fr}.g2{grid-template-columns:1fr}}
+.stat{background:var(--bg);padding:22px}
+.g3 .stat,.g2 .stat{border:1px solid var(--line)}
+.stat .l{font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--mut)}
+.stat .v{font-family:var(--mono);font-weight:700;font-size:28px;margin-top:10px;color:var(--ink);letter-spacing:-.02em}
+.stat .v.big{font-size:36px;color:var(--accent)}
+.stat .s{font-size:11.5px;color:var(--sub);margin-top:6px;letter-spacing:.02em}
+.rows{margin-top:14px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:11px 0;font-size:12.5px;color:var(--sub);border-bottom:1px solid var(--line)}
+.row b{color:var(--ink);font-weight:700}
+/* forms */
+.field{display:flex;align-items:center;gap:10px;background:var(--bg2);border:1px solid var(--line2);border-radius:0;padding:6px 6px 6px 16px;margin-top:16px}
+.field input{flex:1;background:none;border:0;outline:0;color:var(--ink);font-family:var(--mono);font-size:19px;padding:12px 0}
+.field input::placeholder{color:var(--mut)}
+.field .max{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--accent);cursor:pointer;padding:0 10px}
+.field .btnin{padding:13px 22px}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line2);border-radius:0;padding:3px;gap:3px;margin-top:4px}
+.seg button{border:0;background:none;color:var(--sub);font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:9px 20px;cursor:pointer}
+.seg button.on{background:var(--accent);color:var(--cream)}
+.meta{display:flex;justify-content:space-between;font-size:12px;color:var(--sub);margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+.bignum{font-family:var(--mono);font-weight:700;color:var(--accent)}
+.yb{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--sub);padding:9px 0}
+.prog{flex:1;height:6px;background:var(--bg2);border:1px solid var(--line);border-radius:0;overflow:hidden}.prog i{display:block;height:100%;background:var(--accent)}
+canvas#curve{width:100%;height:230px;display:block}
+.health{height:12px;border:1px solid var(--line);background:var(--bg2);overflow:hidden;margin-top:12px}.health i{display:block;height:100%;transition:width .5s,background .5s;background:var(--accent)}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--ink);border:1px solid var(--ink);color:var(--cream);padding:13px 22px;border-radius:0;font-family:var(--mono);font-weight:600;font-size:13px;letter-spacing:.04em;display:none;z-index:60}
+.ca{display:none;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:0;padding:9px 14px;font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:30px 0;color:var(--mut);font-size:11.5px;line-height:1.8;text-align:center;letter-spacing:.02em}
+.tag{display:inline-flex;align-items:center;gap:9px;font-size:10.5px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);background:var(--panel);border:1px solid var(--line2);border-radius:0;padding:8px 15px}
+.tag .d{width:6px;height:6px;border-radius:0;background:var(--accent);animation:bl 1.4s steps(1) infinite}
+@keyframes bl{50%{opacity:.15}}
+.xbtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line2);color:var(--ink);transition:.14s;flex:none}
+.xbtn:hover{background:var(--accent);color:var(--cream);border-color:var(--accent)}
+/* ── mobile ── */
+@media(max-width:680px){
+  header{position:static}
+  .hrow{height:auto;min-height:56px;flex-wrap:wrap;padding:10px 0;gap:8px}
+  .logo{font-size:14px}
+  nav.tabs{order:3;flex-basis:100%;margin-left:0;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+  .tab{white-space:nowrap;flex:none}
+  .right{margin-left:auto}
+  .ca{display:none!important}
+  section{padding:22px 0}
+  .lede{font-size:13px}
+  .g2{gap:12px}
+  .stat{padding:15px}
+  .stat .v{font-size:21px}.stat .v.big{font-size:26px}
+  .stat .l{letter-spacing:.1em}
+  .panel{padding:18px}
+  .tag{display:inline-block;max-width:100%;white-space:normal;line-height:1.9;font-size:9px;letter-spacing:.08em;padding:8px 12px}
+  .tag .d{display:inline-block;vertical-align:middle;margin-right:6px}
+  .field input{font-size:17px;min-width:0}
+  .seg button{padding:9px 14px}
+  .grid>*{min-width:0}
+  .stat .s{overflow-wrap:anywhere}
+}
+@media(max-width:420px){ .g4{grid-template-columns:1fr} }
+</style></head><body>
+
+<header><div class="wrap"><div class="hrow">
+  <div class="logo"><span class="crest">G</span>Graham</div>
+  <nav class="tabs">
+    <div class="tab on" data-view="dash">Portfolio</div>
+    <div class="tab" data-view="buy">Purchase</div>
+    <div class="tab" data-view="enroll">Dividend</div>
+    <div class="tab" data-view="bond">Bond Desk</div>
+    <div class="tab" data-view="credit">Borrow</div>
+    <div class="tab" data-view="loop">Loopback</div>
+    <a class="tab" href="/docs">Prospectus</a>
+  </nav>
+  <div class="right">
+    <a class="ca" id="caBar" href="#"><span class="mut">CA</span> <span id="caText"></span></a>
+    <a class="xbtn" href="https://x.com/GrahamOnBase" target="_blank" rel="noopener" aria-label="Graham on X"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <button class="btn connected" id="connectBtn">Connect account</button>
+  </div>
+</div></div></header>
+
+<!-- PORTFOLIO / DASHBOARD -->
+<section id="dash"><div class="wrap">
+  <a id="boostBanner" href="#" onclick="document.querySelector('.tab[data-view=&quot;enroll&quot;]').click();return false" style="display:none;align-items:center;gap:16px;background:var(--accent);color:var(--cream);border:1px solid var(--accent);padding:16px 22px;margin-bottom:20px;text-decoration:none;flex-wrap:wrap">
+    <span style="font-family:var(--disp);font-weight:700;font-size:20px;letter-spacing:.02em">⚡ 48-HOUR APY BOOST — LIVE</span>
+    <span class="mono" style="font-size:15px;opacity:.9">Dividend supercharged to <b id="boostApy" style="font-size:17px">—</b> · enroll now</span>
+    <span class="mono" id="boostCd" style="margin-left:auto;font-size:20px;font-weight:700;background:var(--deep);padding:8px 16px">—</span>
+  </a>
+  <span class="tag"><span class="d"></span>NAV-backed · Base · immutable policy</span>
+  <h1 style="margin-top:16px">Net Asset Value,<br>quoted from both sides.</h1>
+  <div class="lede">Every GRAHAM is backed by the protocol's risk-free treasury reserves. Dividends scale with the premium the market pays over NAV — rich when the fund trades high, silent when it doesn't. This is the whole policy, and it cannot be changed.</div>
+
+  <div class="grid g4">
+    <div class="stat"><div class="l">Dividend Yield (APY)</div><div class="v big" id="mApy">—</div><div class="s">compounded every 8h · premium-driven</div></div>
+    <div class="stat"><div class="l">NAV (backing)</div><div class="v" id="mNav">—</div><div class="s">risk-free floor · <span id="mBacking">—</span></div></div>
+    <div class="stat"><div class="l">Market Price</div><div class="v" id="mPrice">—</div><div class="s">premium <span id="mPremium" class="gold">—</span> over NAV</div></div>
+    <div class="stat"><div class="l">Next Distribution</div><div class="v" id="mEpoch">—</div><div class="s">epoch <span id="mEpochRate">—</span></div></div>
+  </div>
+
+  <div class="grid g2" style="margin-top:16px">
+    <div class="panel">
+      <div class="ptitle">The Dividend Curve</div>
+      <div class="psub">rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1). Zero at NAV, saturating at the premium K. The dot is the fund right now.</div>
+      <canvas id="curve"></canvas>
+      <div class="meta"><span>R_MAX <b class="bignum" id="mEpochRate2" style="display:none"></b><b class="bignum">0.45% / epoch</b></span><span>Live index <b class="bignum" id="mIndex">—</b></span></div>
+    </div>
+    <div class="panel">
+      <div class="ptitle">Fund Facts</div>
+      <div class="rows">
+        <div class="row"><span>Treasury (risk-free)</span><b id="mTreasury">—</b></div>
+        <div class="row"><span>Total supply</span><b id="mSupply">—</b></div>
+        <div class="row"><span>Market cap</span><b id="mMcap">—</b></div>
+        <div class="row"><span>Enrolled (staked)</span><b id="mRatio">—</b></div>
+        <div class="row"><span>Buyback bid</span><b id="mBuyback">—</b></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div><div class="ptitle">The Floor</div><div class="psub">high-water NAV. It ratchets up as bonds and buys grow the treasury — and it has never fallen.</div></div>
+      <div style="text-align:right"><div class="mono" style="font-size:12px;color:var(--mut);letter-spacing:.14em">FLOOR · NEVER FALLEN</div><div class="mono" id="fFloor" style="font-size:30px;font-weight:700;color:var(--accent)">—</div></div>
+    </div>
+    <canvas id="floorC" style="width:100%;height:190px;display:block;margin-top:16px"></canvas>
+    <div class="grid g4" style="margin-top:16px">
+      <div class="stat"><div class="l">Times raised</div><div class="v" id="fRaises">—</div><div class="s">the floor only goes up</div></div>
+      <div class="stat"><div class="l">Backing added</div><div class="v" id="fAdded">—</div><div class="s">into the treasury</div></div>
+      <div class="stat"><div class="l">Last raise</div><div class="v" id="fSince">—</div><div class="s">ago</div></div>
+      <div class="stat"><div class="l">Drawdowns</div><div class="v" style="color:var(--accent)">0</div><div class="s">the floor has never fallen</div></div>
+    </div>
+  </div>
+  <div class="panel" style="margin-top:16px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px">
+      <div><div class="ptitle">The Reserve Book</div><div class="psub">the treasury is held as tokenized real-world assets on Base — earning real yield that compounds the floor.</div></div>
+      <div style="text-align:right"><div class="mono" style="font-size:12px;color:var(--mut);letter-spacing:.14em">BLENDED REAL YIELD</div><div class="mono" id="rReal" style="font-size:30px;font-weight:700;color:var(--accent)">—</div></div>
+    </div>
+    <div id="rBar" style="display:flex;height:16px;margin-top:18px;border:1px solid var(--line);overflow:hidden"></div>
+    <div class="rows" id="rRows" style="margin-top:14px"></div>
+    <div class="meta"><span>Backed by tokenized US equities, an S&amp;P 500 ETF, short-term T-Bills and USDC.</span><span>RWA value <b class="bignum" id="rVal">—</b></span></div>
+  </div>
+  <div class="grid g2" style="margin-top:16px">
+    <div class="panel" id="lbBox" style="display:none"><div class="ptitle" style="font-size:19px">Register of Shareholders</div><div class="rows" id="lbRows"></div></div>
+    <div class="panel"><div class="ptitle" style="font-size:19px">The Ticker Tape</div><div class="psub">every action on the fund, live.</div><div class="rows" id="tapeRows"><div class="psub">Quiet on the desk.</div></div></div>
+  </div>
+</div></section>
+
+<!-- PURCHASE -->
+<section id="buy" class="hide"><div class="wrap"><div class="panel" style="max-width:560px">
+  <div class="ptitle">Direct Purchase Plan</div>
+  <div class="psub">Buy GRAHAM with USDC at the exchange route, less the trading tax. Proceeds and a slice of the tax accrue to the treasury.</div>
+  <div class="field"><input id="buyAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono">USDC</span><button class="btn gold btnin" id="buyBtn">Buy GRAHAM</button></div>
+  <div class="meta"><span id="buyRate">1 GRAHAM = — USDC</span><span id="buyTax">—</span></div>
+  <div class="meta" style="border:0;padding-top:4px"><span>You receive</span><b class="bignum" id="buyOut">— GRAHAM</b></div>
+</div></div></section>
+
+<!-- DIVIDEND -->
+<section id="enroll" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">Dividend Program — Enroll &amp; Earn</div>
+    <div class="psub">Enroll GRAHAM to receive sGRAHAM. Every distribution compounds into your balance automatically — nothing to claim. Redemption is 1:1 and immediate.</div>
+    <div class="seg" style="margin-top:16px"><button id="segEnroll" class="on">Enroll</button><button id="segRedeem">Redeem</button></div>
+    <div class="field"><input id="stakeAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="max" id="stakeMax">MAX</span><button class="btn gold btnin" id="stakeBtn">Enroll</button></div>
+    <div class="meta"><span>Enrolled becomes sGRAHAM and accrues every epoch. No maximum.</span></div>
+    <div class="meta" style="border:0;padding-top:6px"><span>Treasury wallet</span><a id="treasuryLink" href="#" target="_blank" rel="noopener" class="mono" style="color:var(--accent)">—</a></div>
+  </div>
+  <div class="panel">
+    <div class="ptitle" style="font-size:19px">The Seniority Ladder</div>
+    <div class="psub">the longer you stay enrolled, the bigger your dividend multiplier — up to <b>2×</b>. Redeeming resets your rank.</div>
+    <div style="display:flex;align-items:baseline;gap:14px;margin-top:14px">
+      <div class="mono" id="tierRank" style="font-family:var(--disp);font-size:30px;font-weight:700;color:var(--accent)">—</div>
+      <div class="mono" id="tierMult" style="font-size:20px;font-weight:700;color:var(--ink)">—</div>
+    </div>
+    <div class="health" style="margin-top:12px"><i id="tierProg" style="width:0%;background:var(--accent)"></i></div>
+    <div class="meta" style="border:0;padding-top:8px"><span id="tierNext">—</span><span id="tierDays">—</span></div>
+    <div id="ladderRows" class="rows" style="margin-top:6px"></div>
+  </div>
+  <div class="panel">
+    <div class="ptitle" style="font-size:19px">Your Statement</div>
+    <div class="rows">
+      <div class="row"><span>USDC balance</span><b id="aUsdg">—</b></div>
+      <div class="row"><span>GRAHAM (unenrolled)</span><b id="aGraham">—</b></div>
+      <div class="row"><span>sGRAHAM (enrolled)</span><b id="aStaked">—</b></div>
+      <div class="row"><span>Next distribution</span><b class="gold" id="aNext">—</b></div>
+      <div class="row"><span>Loopback loan</span><b id="aLoan">—</b></div>
+    </div>
+  </div>
+</div></div></section>
+
+<!-- BOND DESK -->
+<section id="bond" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">Real World Bonds — Equity Bond Desk</div>
+    <div class="psub">Subscribe in USDC for GRAHAM notes priced at a discount to the exchange route, floored at NAV so every sale is accretive. Notes vest over 2 days.</div>
+    <div class="field"><input id="bondAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono" id="bondUnit">USDC</span><button class="btn gold btnin" id="bondBtn">Subscribe</button></div>
+    <div class="meta"><span id="bondDisc">—</span><span>Bond price <b class="bignum" id="bondPrice">—</b></span></div>
+    <div class="meta" style="border:0;padding-top:4px"><span>You receive</span><b class="bignum" id="bondOut">— GRAHAM</b></div>
+  </div>
+  <div class="panel"><div class="ptitle" style="font-size:19px">Your Notes</div><div id="yourBonds" style="margin-top:12px"><div class="psub">No vesting notes.</div></div></div>
+</div></div></section>
+
+<!-- CREDIT / BORROW -->
+<section id="credit" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">The Credit Desk</div>
+    <div class="psub">Borrow USDC against your enrolled sGRAHAM — liquidity without selling. Your stake keeps compounding the whole time. Borrow up to 50% of collateral; repay anytime.</div>
+    <div class="field"><input id="borrowAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono">USDC</span><button class="btn gold btnin" id="borrowBtn">Borrow</button></div>
+    <div class="meta"><span id="borrowCap">— available</span><span id="borrowApr">— APR</span></div>
+    <div class="health"><i id="crHealth" style="width:100%;background:linear-gradient(90deg,#3fae86,#0052ff)"></i></div>
+    <div class="meta" style="border:0;padding-top:8px"><span id="crHealthL">no loan — full headroom</span><button class="btn ghost" id="crRepayBtn" style="padding:8px 16px;font-size:13px">Repay loan</button></div>
+  </div>
+  <div class="panel">
+    <div class="ptitle" style="font-size:19px">Your Position</div>
+    <div class="rows">
+      <div class="row"><span>Collateral (sGRAHAM value)</span><b id="crColl">—</b></div>
+      <div class="row"><span>Available to borrow</span><b class="gold" id="crAvail">—</b></div>
+      <div class="row"><span>Outstanding loan</span><b id="crLoan">—</b></div>
+      <div class="row"><span>Loan-to-value</span><b id="crLtv">—</b></div>
+      <div class="row"><span>Still earning</span><b class="gold" id="crEarn">the full dividend</b></div>
+    </div>
+    <div class="psub" style="margin-top:14px">Your collateral keeps earning the boosted dividend while borrowed. Keep your LTV below the 75% liquidation line. Not financial advice.</div>
+  </div>
+</div></div></section>
+
+<!-- LOOPBACK -->
+<section id="loop" class="hide"><div class="wrap"><div class="grid g2">
+  <div class="panel">
+    <div class="ptitle">Loopback — Lombard Credit Facility</div>
+    <div class="psub">Borrow USDC against your enrolled sGRAHAM, buy more GRAHAM, and enroll it — a leverage loop in one transaction. Borrow up to 50% of collateral value.</div>
+    <div class="field"><input id="loopAmt" type="text" inputmode="decimal" placeholder="0.00"><span class="mut mono">USDC</span><button class="btn gold btnin" id="loopBtn">Engage</button></div>
+    <div class="meta"><span id="loopCap">— available</span><span id="loopApr">— APR</span></div>
+    <div class="health"><i id="loopHealth" style="width:100%;background:linear-gradient(90deg,#3fae86,#c9a86a)"></i></div>
+    <div class="meta" style="border:0;padding-top:8px"><span id="loopHealthL">no loan — full headroom</span><button class="btn ghost" id="repayBtn" style="padding:8px 16px;font-size:13px">Repay loan</button></div>
+  </div>
+  <div class="panel">
+    <div class="ptitle" style="font-size:19px">Effective Yield Simulator</div>
+    <div class="psub">Compounding the dividend through the loop, net of borrow cost.</div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;margin-top:16px">
+      <div class="stat"><div class="l">Leverage</div><div class="v" id="loopLev">—</div><div class="s">exposure per unit equity</div></div>
+      <div class="stat"><div class="l">Effective APY</div><div class="v big" id="loopEff">—</div><div class="s">net of borrow cost</div></div>
+    </div>
+    <div class="psub" style="margin-top:14px">Leverage magnifies both the dividend and the loss if the premium collapses toward NAV. Manage your headroom. Not financial advice.</div>
+  </div>
+</div></div></section>
+
+<footer><div class="wrap">
+  <div style="font-family:var(--serif);font-size:18px;color:var(--accent);margin-bottom:8px">Graham · Shareholder Services</div>
+  NAV-backed reserve protocol on Base · <a href="/docs" style="color:var(--gold)">Prospectus</a> · <a href="/">Home</a><br>
+  Not affiliated with NetNet Capital. "Fund", "shares", "dividend", and "prospectus" are thematic terms. Nothing here is financial advice — do your own research.
+</div></footer>
+
+<div class="toast" id="toast"></div>
+<script src="/client/src/app.js"></script>
+</body></html>

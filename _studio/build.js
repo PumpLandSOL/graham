@@ -1,0 +1,370 @@
+'use strict';
+// Graham brand-kit generator. Self-contained HTML per asset -> headless Chrome (ABSOLUTE file:// URL) -> Desktop PNG.
+// Palette: ivory paper + emerald, Space Grotesk + JetBrains Mono. "Classified dossier" motif.
+const fs = require('fs');
+const path = require('path');
+const OUT = path.join(__dirname, 'out');
+fs.mkdirSync(OUT, { recursive: true });
+
+const FONTS = `<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">`;
+
+const BASE = `
+:root{--bg:#f3f0e7;--ink:#14251c;--sub:rgba(20,37,28,.6);--mut:rgba(20,37,28,.36);--line:rgba(20,37,28,.15);--line2:rgba(20,37,28,.3);--accent:#0f6b4f;--deep:#0c5a41;--cream:#f3f0e7;--creamsub:rgba(243,240,231,.7);--disp:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{font-family:var(--mono);color:var(--ink);background:var(--bg)}
+.stage{position:relative;overflow:hidden;background:var(--bg)}
+.grid{position:absolute;inset:0;background:linear-gradient(90deg,rgba(20,37,28,.04) 1px,transparent 1px),linear-gradient(0deg,rgba(20,37,28,.04) 1px,transparent 1px);background-size:60px 60px;-webkit-mask:radial-gradient(130% 90% at 50% 0%,#000,transparent 82%)}
+.disp{font-family:var(--disp);text-transform:uppercase;letter-spacing:-.03em}
+.mono{font-family:var(--mono)}
+.crest{border:2px solid var(--deep);background:var(--deep);color:var(--cream);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:800}
+.o{color:var(--bg);-webkit-text-stroke-color:var(--deep)}
+`;
+
+const page = (w, h, css, body) => `<!doctype html><html><head><meta charset="utf-8">${FONTS}<style>${BASE}
+.stage{width:${w}px;height:${h}px}${css}</style></head><body><div class="stage"><div class="grid"></div>${body}</div></body></html>`;
+
+const stamp = (t) => `<span style="display:inline-flex;align-items:center;gap:10px;border:1px solid var(--line2);padding:10px 18px;font-size:15px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink)"><span style="width:8px;height:8px;background:var(--accent)"></span>${t}</span>`;
+
+const assets = {};
+
+// 1) PFP 800x800 — crest + wordmark stack
+assets['graham-pfp'] = page(800, 800, `
+  .wrap{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:34px}
+  .crest{width:230px;height:230px;font-size:130px;border-width:4px}
+  .wm{font-size:60px;font-weight:700;color:var(--deep)}`,
+  `<div class="wrap"><div class="crest">V</div><div class="wm disp">Graham<span style="color:var(--sub);font-size:26px;display:block;text-align:center;letter-spacing:.3em;margin-top:8px">CAPITAL</span></div></div>`);
+
+// 2) BANNER 1500x500
+assets['graham-banner'] = page(1500, 500, `
+  .wrap{position:absolute;inset:0;display:flex;align-items:center;gap:48px;padding:0 70px}
+  .crest{width:150px;height:150px;font-size:88px;border-width:3px;flex:none}
+  .h{font-size:78px;font-weight:700;color:var(--deep);line-height:.9}
+  .s{font-size:22px;color:var(--sub);margin-top:16px;letter-spacing:.02em}
+  .rt{position:absolute;right:70px;top:44px;font-size:14px;letter-spacing:.24em;color:var(--mut);text-transform:uppercase}
+  .rb{position:absolute;right:70px;bottom:44px;font-size:20px;font-weight:700;color:var(--accent)}`,
+  `<div class="rt mono">NAV-BACKED RESERVE // ROBINHOOD CHAIN</div>
+   <div class="wrap"><div class="crest">V</div><div><div class="h disp">Graham Cap<span class="o" style="-webkit-text-stroke:1.4px var(--deep)">ital</span></div><div class="s">A floor beneath you. A press above. · $GRAHAM</div></div></div>
+   <div class="rb mono">grahamonbase.xyz</div>`);
+
+// 3) KEY ART 2400x1350 — hero dossier
+assets['graham-keyart'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:130px 140px;display:flex;flex-direction:column;justify-content:center}
+  .h{font-size:190px;font-weight:700;color:var(--deep);line-height:.86;margin:34px 0 40px}
+  .s{font-size:40px;color:var(--sub);line-height:1.5;max-width:1500px}
+  .row{display:flex;gap:20px;margin-top:70px;flex-wrap:wrap}
+  .chip{border:1px solid var(--line2);padding:18px 30px;font-size:30px;font-weight:700;color:var(--ink)}
+  .chip b{color:var(--accent)}
+  .rt{position:absolute;right:140px;top:110px;font-size:22px;letter-spacing:.24em;color:var(--mut);text-transform:uppercase}
+  .rb{position:absolute;right:140px;bottom:110px;font-size:30px;font-weight:700;color:var(--accent)}`,
+  `<div class="rt mono">DOC · VLT-01 · CLASSIFIED</div>
+   <div class="wrap">${stamp('Reserve Protocol · Immutable Policy')}
+     <div class="h disp">Graham Cap<span class="o" style="-webkit-text-stroke:2.4px var(--deep)">ital</span></div>
+     <div class="s">A reserve currency in the shape of a capital-management fund. Every GRAHAM is backed by at least 1 USDC of risk-free value — a hard floor you redeem against, 1:1. Above it, the press runs, scaled to the premium the market will pay.</div>
+     <div class="row"><div class="chip">◆ NAV <b>floor</b></div><div class="chip">◆ Premium-driven <b>dividend</b></div><div class="chip">◆ Bond · <b>Loopback</b></div></div>
+   </div>
+   <div class="rb mono">grahamonbase.xyz</div>`);
+
+// 4) MECHANISM 2400x1350 — the four instruments as manifest rows
+const mrow = (n, t, d) => `<div style="display:grid;grid-template-columns:200px 1fr 1.7fr;gap:28px;align-items:baseline;padding:38px 0;border-top:1px solid var(--line)">
+  <div class="mono" style="font-size:26px;letter-spacing:.1em;color:var(--accent)">${n}</div>
+  <div class="disp" style="font-size:46px;font-weight:600">${t}</div>
+  <div style="font-size:28px;color:var(--sub);line-height:1.45">${d}</div></div>`;
+assets['graham-mechanism'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:100px 140px;display:flex;flex-direction:column}
+  .ey{font-size:26px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:96px;font-weight:700;color:var(--deep);margin:14px 0 34px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:28px;color:var(--sub)}`,
+  `<div class="wrap">
+     <div class="ey mono">// Instruments</div>
+     <div class="h disp">One engine. Four holds.</div>
+     ${mrow('01 · ENROLL', 'Dividend Program', 'Enroll GRAHAM, receive sGRAHAM, compound every epoch. Redemption 1:1, immediate.')}
+     ${mrow('02 · BOND', 'Equity Bond Desk', 'Subscribe USDC for discounted GRAHAM notes, floored at NAV. Every sale grows backing.')}
+     ${mrow('03 · LOOP', 'Loopback Credit', 'Borrow USDC against sGRAHAM, buy & enroll in one tx. Leverage the dividend.')}
+     <div class="foot mono"><span>◆ NAV-backed · Base</span><span style="color:var(--accent)">grahamonbase.xyz</span></div>
+   </div>`);
+
+// 5) THE CURVE 2400x1350 — dividend policy formula + curve
+assets['graham-policy'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:110px 140px;display:flex;gap:90px;align-items:center}
+  .h{font-size:104px;font-weight:700;color:var(--deep);line-height:1.02;margin-bottom:34px}
+  .s{font-size:34px;color:var(--sub);line-height:1.55}
+  .form{margin-top:44px;background:var(--deep);color:var(--cream);border-left:5px solid var(--accent);padding:28px 32px;font-size:30px;font-family:var(--mono)}
+  .panel{flex:1;border:1px solid var(--line2);background:#faf8f1;padding:44px}
+  .pl{font-size:22px;letter-spacing:.2em;color:var(--mut);text-transform:uppercase}`,
+  `<div class="wrap">
+     <div style="flex:1.05">
+       <div class="mono" style="font-size:26px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase">// Emissions Policy</div>
+       <div class="h disp">You earn only<br>what's earned.</div>
+       <div class="s">Dividends scale with the premium the market pays over NAV. Zero at the floor, full at a 1.75× premium. Immutable at deployment — no admin, ever.</div>
+       <div class="form">rate = R_MAX × clamp((P−1)/(K−1), 0, 1)</div>
+     </div>
+     <div class="panel">
+       <div class="pl mono">The Curve</div>
+       <svg width="720" height="520" viewBox="0 0 720 520" style="margin-top:24px">
+         <line x1="60" y1="60" x2="60" y2="440" stroke="rgba(20,37,28,.2)" stroke-width="2"/>
+         <line x1="60" y1="440" x2="700" y2="440" stroke="rgba(20,37,28,.2)" stroke-width="2"/>
+         <path d="M60 440 L360 150 L700 150" fill="none" stroke="#0f6b4f" stroke-width="6"/>
+         <path d="M60 440 L360 150 L700 150 L700 440 Z" fill="rgba(15,107,79,.14)"/>
+         <line x1="360" y1="60" x2="360" y2="440" stroke="rgba(20,37,28,.28)" stroke-width="2" stroke-dasharray="6 7"/>
+         <circle cx="700" cy="150" r="11" fill="#fff" stroke="#0f6b4f" stroke-width="4"/>
+         <text x="60" y="478" font-family="JetBrains Mono" font-size="22" fill="rgba(20,37,28,.5)">NAV 1×</text>
+         <text x="330" y="478" font-family="JetBrains Mono" font-size="22" fill="rgba(20,37,28,.5)">K 1.75×</text>
+       </svg>
+     </div>
+   </div>`);
+
+// 6) VS NETNET / LINEAGE 2400x1350 — comparison
+const vrow = (name, tick, note, us) => `<div style="display:flex;align-items:center;gap:40px;padding:36px 44px;border:1px solid ${us ? 'var(--deep)' : 'var(--line2)'};background:${us ? 'var(--deep)' : '#faf8f1'};color:${us ? 'var(--cream)' : 'var(--ink)'};margin-top:22px">
+  <div style="flex:1"><div class="disp" style="font-size:48px;font-weight:600">${name}</div><div class="mono" style="font-size:24px;color:${us ? 'var(--creamsub)' : 'var(--mut)'};margin-top:6px">${tick}</div></div>
+  <div style="flex:1.4;font-size:28px;line-height:1.4;color:${us ? 'var(--cream)' : 'var(--sub)'}">${note}</div></div>`;
+assets['graham-lineage'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:104px 150px;display:flex;flex-direction:column}
+  .ey{font-size:26px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:96px;font-weight:700;color:var(--deep);margin:12px 0 20px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:28px;color:var(--sub)}`,
+  `<div class="wrap">
+     <div class="ey mono">// The Lineage</div>
+     <div class="h disp">Backed. Then better.</div>
+     ${vrow('NetNet Capital', '$NET · the reference', 'Proved the model — NAV floor, premium dividends, a fund you can redeem against.', false)}
+     ${vrow('Graham', '$GRAHAM · the build', 'Same immutable engine + a live NAV / premium / curve dashboard and a one-click Loopback leverage simulator.', true)}
+     <div class="foot mono"><span>◆ Not affiliated with NetNet Capital</span><span style="color:var(--accent)">grahamonbase.xyz</span></div>
+   </div>`);
+
+// 7) VS NETNET 2400x1350 — feature comparison, Graham superior
+const crow = (label, net, vlt) => `<div style="display:grid;grid-template-columns:1.5fr 1fr 1fr;align-items:center;border-top:1px solid var(--line)">
+  <div style="font-size:28px;color:var(--ink);padding:26px 30px">${label}</div>
+  <div style="font-size:26px;color:var(--sub);padding:26px 30px;text-align:center;border-left:1px solid var(--line)">${net}</div>
+  <div style="font-size:26px;color:var(--cream);font-weight:700;padding:26px 30px;text-align:center;background:var(--deep)">${vlt}</div></div>`;
+assets['graham-vs-netnet'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:80px 130px;display:flex;flex-direction:column}
+  .ey{font-size:24px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:82px;font-weight:700;color:var(--deep);margin:10px 0 26px}
+  .tbl{border:1px solid var(--line2)}
+  .hd{display:grid;grid-template-columns:1.5fr 1fr 1fr;align-items:stretch}
+  .hd .c{padding:26px 30px;font-family:var(--disp);font-weight:600;font-size:34px;text-transform:uppercase}
+  .hd .net{text-align:center;color:var(--sub);border-left:1px solid var(--line);font-size:28px}
+  .hd .vlt{text-align:center;background:var(--deep);color:var(--cream)}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:26px;color:var(--sub)}`,
+  `<div class="wrap">
+     <div class="ey mono">// Head to head</div>
+     <div class="h disp">Same model. Sharper build.</div>
+     <div class="tbl">
+       <div class="hd"><div class="c">&nbsp;</div><div class="c net">NetNet</div><div class="c vlt">Graham</div></div>
+       ${crow('NAV floor · redeem 1:1', '✓', '✓')}
+       ${crow('Premium-driven dividend', '✓', '✓')}
+       ${crow('Live NAV / premium / curve dashboard', '—', '✓ built-in')}
+       ${crow('One-click Loopback simulator', 'manual', '✓ + health meter')}
+       ${crow('All-time high', '$5M', 'unwritten')}
+     </div>
+     <div class="foot mono"><span>◆ Not affiliated with NetNet Capital</span><span style="color:var(--accent)">$GRAHAM · grahamonbase.xyz</span></div>
+   </div>`);
+
+// 8) THE FLOOR 2400x1350 — only goes up
+function stepPath(w, h) { let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647; let d = '', y = h * 0.82; const n = 26; for (let i = 0; i <= n; i++) { const x = i / n * w; if (i && rnd() > 0.55) y -= (h * 0.5) * (0.05 + rnd() * 0.16); y = Math.max(h * 0.14, y); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1) + ' '; } return d; }
+assets['graham-floor'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:90px 130px;display:flex;flex-direction:column}
+  .ey{font-size:24px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:104px;font-weight:700;color:var(--deep);line-height:.98;margin:12px 0 6px}
+  .h .u{color:var(--bg);-webkit-text-stroke:2px var(--deep)}
+  .s{font-size:30px;color:var(--sub);max-width:1100px;line-height:1.5;margin-top:14px}
+  .stats{display:flex;gap:0;border:1px solid var(--line2);margin-top:auto}
+  .st{flex:1;padding:34px 36px}.st+.st{border-left:1px solid var(--line)}
+  .st .v{font-family:var(--mono);font-size:52px;font-weight:700;color:var(--deep)}
+  .st .l{font-size:22px;color:var(--sub);margin-top:8px}`,
+  `<div class="wrap">
+     <div class="ey mono">// Proof of backing</div>
+     <div class="h disp">The floor <span class="u">only</span> goes up.</div>
+     <div class="s">High-water NAV. Every bond and every buy grows the treasury behind $GRAHAM — and the floor ratchets up with it. Drawdowns to date: zero.</div>
+     <svg viewBox="0 0 2000 360" style="width:100%;height:360px;margin:34px 0">
+       <defs><linearGradient id="fg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f6b4f" stop-opacity=".22"/><stop offset="1" stop-color="#0f6b4f" stop-opacity="0"/></linearGradient></defs>
+       <path d="${stepPath(2000, 360)} L2000 360 L0 360 Z" fill="url(#fg)"/>
+       <path d="${stepPath(2000, 360)}" fill="none" stroke="#0f6b4f" stroke-width="5" stroke-linejoin="round"/>
+     </svg>
+     <div class="stats">
+       <div class="st"><div class="v">0</div><div class="l">Drawdowns, ever</div></div>
+       <div class="st"><div class="v">1:1</div><div class="l">Redeemable, any hour</div></div>
+       <div class="st"><div class="v">≥1 USDC</div><div class="l">Backing per GRAHAM</div></div>
+       <div class="st"><div class="v" style="color:var(--accent)">grahamonbase.xyz</div><div class="l">$GRAHAM · Base</div></div>
+     </div>
+   </div>`);
+
+// 9) VS NEST 2400x1350 — APY contrast + feature superiority
+const nrow = (label, nest, vlt) => `<div style="display:grid;grid-template-columns:1.6fr 1fr 1fr;align-items:center;border-top:1px solid var(--line)">
+  <div style="font-size:26px;color:var(--ink);padding:22px 30px">${label}</div>
+  <div style="font-size:24px;color:var(--sub);padding:22px 30px;text-align:center;border-left:1px solid var(--line)">${nest}</div>
+  <div style="font-size:24px;color:var(--cream);font-weight:700;padding:22px 30px;text-align:center;background:var(--deep)">${vlt}</div></div>`;
+assets['graham-vs-nest'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:74px 120px;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .apyrow{display:grid;grid-template-columns:1fr 1fr;gap:0;margin:16px 0 26px;border:1px solid var(--line2)}
+  .apyc{padding:34px 40px}
+  .apyc.n{border-right:1px solid var(--line)}
+  .apyc .l{font-size:24px;letter-spacing:.06em;color:var(--sub);font-weight:600}
+  .apyc.n .v{font-family:var(--mono);font-size:88px;font-weight:700;color:var(--sub);margin-top:6px}
+  .apyc.v{background:var(--deep)}
+  .apyc.v .l{color:var(--cream)}
+  .apyc.v .v{font-family:var(--mono);font-size:88px;font-weight:700;color:var(--cream);margin-top:6px}
+  .apyc.v .sub{font-size:20px;color:#9fe6c6;margin-top:8px}
+  .tbl{border:1px solid var(--line2)}
+  .hd{display:grid;grid-template-columns:1.6fr 1fr 1fr}
+  .hd .c{padding:20px 30px;font-family:var(--disp);font-weight:600;font-size:30px;text-transform:uppercase}
+  .hd .net{text-align:center;color:var(--sub);border-left:1px solid var(--line);font-size:26px}
+  .hd .vlt{text-align:center;background:var(--deep);color:var(--cream)}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:25px;color:var(--sub);padding-top:22px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The math isn't close</div>
+     <div class="apyrow">
+       <div class="apyc n"><div class="l">NEST — sNUSD staking</div><div class="v">6%</div></div>
+       <div class="apyc v"><div class="l">GRAHAM — sGRAHAM staking ⚡</div><div class="v">250,000%</div><div class="sub">48-hour boost · 13,598% base</div></div>
+     </div>
+     <div class="tbl">
+       <div class="hd"><div class="c">&nbsp;</div><div class="c net">Nest</div><div class="c vlt">Graham</div></div>
+       ${nrow('Model', 'stablecoin (nUSD)', 'NAV-backed reserve')}
+       ${nrow('NAV floor · redeem 1:1 any hour', 'peg module', '✓ hard floor')}
+       ${nrow('One-click leverage loop', '—', '✓ Loopback')}
+       ${nrow('Rising-floor proof tracker', '—', '✓ never fallen')}
+       ${nrow('All-time high', '$16M', 'unwritten')}
+     </div>
+     <div class="foot mono"><span>◆ Nest sNUSD ~6% real yield · not affiliated</span><span style="color:var(--accent)">$GRAHAM · grahamonbase.xyz</span></div>
+   </div>`);
+
+// 10) THE RESERVE BOOK 2400x1350 — tokenized RWA backing
+const HOLD = [['NVDAx','NVIDIA',18],['SPYx','S&P 500 ETF',16],['TBILx','3-Month T-Bill',16],['USDC','USDC reserve',18],['AAPLx','Apple',12],['MSFTx','Microsoft',12],['TSLAx','Tesla',8]];
+const holdRow = (s,n,w) => `<div style="display:flex;align-items:center;gap:20px;border-top:1px solid var(--line);padding:20px 4px">
+  <div class="mono" style="font-size:26px;font-weight:700;color:var(--deep);min-width:120px">${s}</div>
+  <div style="font-size:24px;color:var(--ink);flex:1">${n}</div>
+  <div style="flex:2;height:14px;background:#e7e2d4"><div style="height:100%;width:${w*4}%;background:var(--deep)"></div></div>
+  <div class="mono" style="font-size:24px;font-weight:700;min-width:70px;text-align:right">${w}%</div></div>`;
+assets['graham-reserve'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:72px 120px;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:82px;font-weight:700;color:var(--deep);line-height:1;margin:12px 0 8px}
+  .s{font-size:28px;color:var(--sub);max-width:1500px;line-height:1.5}
+  .split{display:flex;gap:60px;margin-top:30px;flex:1}
+  .book{flex:1.5}
+  .side{flex:1;display:flex;flex-direction:column;gap:20px}
+  .card{border:1px solid var(--line2);padding:30px 34px}
+  .card.dk{background:var(--deep);color:var(--cream)}
+  .card .v{font-family:var(--mono);font-size:64px;font-weight:700}
+  .card .l{font-size:22px;margin-top:6px;opacity:.85}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:24px;color:var(--sub);padding-top:22px}`,
+  `<div class="wrap">
+     <div class="ey mono">// Proof of reserves · Base</div>
+     <div class="h disp">Backed by real assets.</div>
+     <div class="s">Graham's treasury is held as tokenized US equities, an S&P 500 ETF, short-term T-Bills and USDC — earning real yield that compounds the floor. Not a promise. A portfolio.</div>
+     <div class="split">
+       <div class="book">${HOLD.map((h)=>holdRow(h[0],h[1],h[2])).join('')}</div>
+       <div class="side">
+         <div class="card dk"><div class="v">2.14%</div><div class="l">blended real yield · accrues to backing</div></div>
+         <div class="card"><div class="v" style="color:var(--deep)">7 assets</div><div class="l">tokenized equities · ETF · T-Bills · USDC</div></div>
+         <div class="card"><div class="v" style="color:var(--deep)">↑ only</div><div class="l">real income ratchets the NAV floor</div></div>
+       </div>
+     </div>
+     <div class="foot mono"><span>◆ Reserve backing on-chain · not affiliated with Nest</span><span style="color:var(--accent)">$GRAHAM · grahamonbase.xyz</span></div>
+   </div>`);
+
+// 11) THE CREDIT DESK 2400x1350 — borrow against your bag
+const step3 = (n,t,d) => `<div style="flex:1;border:1px solid var(--line2);padding:36px 34px;background:#fff">
+  <div class="mono" style="font-size:30px;color:var(--deep);font-weight:700">${n}</div>
+  <div style="font-size:38px;font-weight:700;margin:14px 0 10px;color:var(--ink);font-family:var(--disp)">${t}</div>
+  <div style="font-size:24px;color:var(--sub);line-height:1.45">${d}</div></div>`;
+assets['graham-credit'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:80px 120px;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:96px;font-weight:700;color:var(--deep);line-height:.98;margin:12px 0 8px}
+  .h .u{color:var(--bg);-webkit-text-stroke:2px var(--deep)}
+  .s{font-size:30px;color:var(--sub);max-width:1500px;line-height:1.5}
+  .steps{display:flex;gap:22px;margin:44px 0}
+  .stat{display:flex;gap:0;border:1px solid var(--line2)}
+  .sc{flex:1;padding:30px 34px}.sc+.sc{border-left:1px solid var(--line)}
+  .sc .v{font-family:var(--mono);font-size:48px;font-weight:700;color:var(--deep)}
+  .sc .l{font-size:22px;color:var(--sub);margin-top:6px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:25px;color:var(--sub);padding-top:24px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The Credit Desk · liquidity without selling</div>
+     <div class="h disp">Borrow against your bag. <span class="u">Don't sell it.</span></div>
+     <div class="s">Enroll $GRAHAM, then borrow USDC against your sGRAHAM — and your stake keeps compounding the whole time. Get liquidity today without giving up the dividend.</div>
+     <div class="steps">
+       ${step3('01','Enroll','Your $GRAHAM becomes sGRAHAM — the collateral that keeps earning.')}
+       ${step3('02','Borrow','Draw up to 50% of its value in USDC, paid from the treasury.')}
+       ${step3('03','Keep earning','The dividend never stops. Repay anytime to unlock.')}
+     </div>
+     <div class="stat">
+       <div class="sc"><div class="v">50%</div><div class="l">max loan-to-value</div></div>
+       <div class="sc"><div class="v">250,000%</div><div class="l">stake still earning ⚡</div></div>
+       <div class="sc"><div class="v">anytime</div><div class="l">repay &amp; unlock</div></div>
+       <div class="sc"><div class="v" style="color:var(--accent)">no sell</div><div class="l">keep every token</div></div>
+     </div>
+     <div class="foot mono"><span>◆ Manage your LTV below the 75% liquidation line</span><span style="color:var(--accent)">$GRAHAM · grahamonbase.xyz</span></div>
+   </div>`);
+
+// 12) THREE-WAY COMPARISON 2400x1350 — NetNet vs Nest vs Graham
+const trow = (label, net, nest, vlt, big) => `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.15fr;align-items:center;border-top:1px solid var(--line)">
+  <div style="font-size:${big?27:25}px;color:var(--ink);padding:${big?20:17}px 30px;font-weight:${big?700:400}">${label}</div>
+  <div style="font-size:23px;color:var(--sub);padding:17px 20px;text-align:center;border-left:1px solid var(--line)">${net}</div>
+  <div style="font-size:23px;color:var(--sub);padding:17px 20px;text-align:center;border-left:1px solid var(--line)">${nest}</div>
+  <div style="font-size:23px;color:var(--cream);font-weight:700;padding:17px 20px;text-align:center;background:var(--deep)">${vlt}</div></div>`;
+assets['graham-vs-all'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:56px 110px;display:flex;flex-direction:column}
+  .ey{font-size:22px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:66px;font-weight:700;color:var(--deep);margin:6px 0 18px}
+  .tbl{border:1px solid var(--line2)}
+  .hd{display:grid;grid-template-columns:2fr 1fr 1fr 1.15fr}
+  .hd .c{padding:18px 30px;font-family:var(--disp);font-weight:600;font-size:30px;text-transform:uppercase}
+  .hd .o{text-align:center;color:var(--sub);border-left:1px solid var(--line);font-size:26px}
+  .hd .v{text-align:center;background:var(--deep);color:var(--cream);font-size:28px}
+  .ath{font-size:19px;font-weight:400;color:var(--mut);text-transform:none;letter-spacing:0;display:block;margin-top:2px}
+  .foot{margin-top:auto;display:flex;justify-content:space-between;font-size:22px;color:var(--sub);padding-top:18px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The whole field, one table</div>
+     <div class="h disp">Same idea. Not the same build.</div>
+     <div class="tbl">
+       <div class="hd"><div class="c">&nbsp;</div>
+         <div class="c o">NetNet<span class="ath mono">$5M ATH</span></div>
+         <div class="c o">Nest<span class="ath mono">$16M ATH</span></div>
+         <div class="c v">Graham<span class="ath mono" style="color:#9fe6c6">unwritten</span></div></div>
+       ${trow('Staking APY', '13,551%', '6%', '250,000% ⚡', true)}
+       ${trow('NAV floor · redeem 1:1', '✓', 'peg', '✓')}
+       ${trow('Premium-driven dividend', '✓', '—', '✓')}
+       ${trow('Rising-floor tracker', '—', '—', '✓')}
+       ${trow('Borrow against your stake', '—', '✓', '✓')}
+       ${trow('One-click leverage loop', 'manual', '—', '✓')}
+       ${trow('Tokenized RWA reserve book', '—', '✓', '✓')}
+       ${trow('48-hour APY boost', '—', '—', '✓')}
+       ${trow('Live NAV / premium dashboard', '—', '—', '✓')}
+     </div>
+     <div class="foot mono"><span>◆ Not affiliated with NetNet or Nest · figures per each project</span><span style="color:var(--accent)">$GRAHAM · grahamonbase.xyz</span></div>
+   </div>`);
+
+// 13) THE SENIORITY LADDER 2400x1350 — tenure multiplier stairs
+const RANKS = [['Associate','day 0+','1.0×',0],['Manager','day 3+','1.2×',1],['Director','day 7+','1.4×',2],['Partner','day 14+','1.7×',3],['Chairman','day 30+','2.0×',4]];
+const stair = (r,i,n) => { const h = 220 + i * 110; const top = i === n-1; return `
+  <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end">
+    <div style="text-align:center;margin-bottom:14px">
+      <div style="font-family:var(--mono);font-size:${top?56:44}px;font-weight:700;color:var(--deep)">${r[2]}</div>
+      <div style="font-family:var(--disp);font-size:${top?34:28}px;font-weight:700;color:var(--ink);text-transform:uppercase;margin-top:4px">${r[0]}${top?' 👑':''}</div>
+      <div style="font-family:var(--mono);font-size:20px;color:var(--sub);margin-top:2px">${r[1]}</div>
+    </div>
+    <div style="height:${h}px;background:${top?'var(--deep)':'linear-gradient(180deg,rgba(12,90,65,'+(0.25+i*0.16)+'),rgba(12,90,65,'+(0.18+i*0.14)+'))'};border:1px solid var(--line2);border-bottom:0;margin:0 8px;display:flex;align-items:flex-start;justify-content:center;padding-top:14px">
+      ${top?'<span style="font-family:var(--mono);font-size:22px;color:#9fe6c6;font-weight:700">500,000% APY ⚡</span>':''}
+    </div>
+  </div>`; };
+assets['graham-ladder'] = page(2400, 1350, `
+  .wrap{position:absolute;inset:0;padding:76px 120px 0;display:flex;flex-direction:column}
+  .ey{font-size:23px;letter-spacing:.3em;color:var(--mut);text-transform:uppercase}
+  .h{font-size:92px;font-weight:700;color:var(--deep);line-height:.98;margin:10px 0 8px}
+  .h .u{color:var(--bg);-webkit-text-stroke:2px var(--deep)}
+  .s{font-size:29px;color:var(--sub);max-width:1480px;line-height:1.5}
+  .stairs{display:flex;align-items:flex-end;flex:1;margin-top:26px;border-bottom:1px solid var(--line2)}
+  .foot{display:flex;justify-content:space-between;font-size:24px;color:var(--sub);padding:22px 0 26px}`,
+  `<div class="wrap">
+     <div class="ey mono">// The Seniority Ladder · loyalty pays</div>
+     <div class="h disp">Stay enrolled. <span class="u">Get promoted.</span></div>
+     <div class="s">The longer you stay enrolled, the bigger your dividend multiplier — every epoch pays bonus sGRAHAM scaled to your rank. Redeeming resets you to Associate. Seniority pays.</div>
+     <div class="stairs">${RANKS.map((r,i)=>stair(r,i,RANKS.length)).join('')}</div>
+     <div class="foot mono"><span>◆ Multiplier applies to every distribution · resets on redeem</span><span style="color:var(--accent)">$GRAHAM · grahamonbase.xyz</span></div>
+   </div>`);
+
+for (const [name, html] of Object.entries(assets)) { fs.writeFileSync(path.join(OUT, name + '.html'), html); console.log('wrote', name); }
+console.log('done:', Object.keys(assets).length);
