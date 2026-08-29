@@ -1,244 +1,241 @@
 <!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Graham // NAV-backed reserve · Base</title>
-<meta name="description" content="Graham: a NAV-backed reserve protocol on Base. Every GRAHAM is backed by the protocol treasury. Dividends scale with the premium the market pays.">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>Graham Capital Management</title>
+<meta name="description" content="Graham Capital Management — GRAHAM is a reserve instrument on Base. The fund's treasury holds the USDC that backs it; enrolled shareholders receive a distribution every 8 hours.">
 <style>
 :root{
-  --bg:#f4f5f9;--ink:#0a1633;--sub:rgba(10,22,51,.6);--mut:rgba(10,22,51,.36);
-  --line:rgba(10,22,51,.14);--line2:rgba(10,22,51,.3);
-  --accent:#0052ff;--accent2:#2a6dff;--deep:#00318f;--cream:#f4f5f9;--creamsub:rgba(244,245,249,.7);
-  --disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
-*{margin:0;padding:0;box-sizing:border-box}
+  --page:#c9d6f2;            /* desktop */
+  --paper:#f2f6ff;           /* window body */
+  --paper2:#e8eeff;          /* alt panel */
+  --ink:#0a1d4d;             /* text */
+  --sub:#41528a;
+  --blue:#0052ff;            /* Base blue */
+  --blue2:#2a6dff;
+  --deep:#05215c;
+  --hilite:#ffffff;
+  --shadow:#8195c9;
+  --shadow2:#54679e;
+  --live:#0a7a3c;
+  --liveBg:#d8f2e2;
+}
+*{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:var(--mono);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;position:relative;overflow-x:hidden}
-body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;background:linear-gradient(90deg,rgba(10,22,51,.03) 1px,transparent 1px),linear-gradient(0deg,rgba(10,22,51,.03) 1px,transparent 1px);background-size:58px 58px;-webkit-mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 80%);mask:radial-gradient(130% 80% at 50% 0%,#000,transparent 80%);opacity:.7}
-a{color:inherit;text-decoration:none}
-/* ── top ticker tape ── */
-.tape{position:relative;z-index:10;border-bottom:1px solid var(--deep);background:var(--deep);color:var(--cream);overflow:hidden;white-space:nowrap;height:38px;display:flex;align-items:center}
-.tape .track{display:inline-flex;gap:44px;padding-left:100%;animation:scroll 26s linear infinite;font-size:12px;letter-spacing:.08em;color:var(--creamsub)}
-.tape .track b{color:var(--cream)}
-@keyframes scroll{to{transform:translateX(-100%)}}
-/* ── fixed side rail ── */
-.rail{position:fixed;left:0;top:0;bottom:0;width:52px;border-right:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:18px 0;z-index:30;background:rgba(244,245,249,.7)}
-.rail .rec{display:flex;align-items:center;gap:7px;writing-mode:vertical-rl;font-size:10px;letter-spacing:.3em;color:var(--sub);text-transform:uppercase}
-.rail .dot{width:7px;height:7px;background:var(--accent);border-radius:50%;animation:bl 1.3s steps(1) infinite}
-@keyframes bl{50%{opacity:.2}}
-.rail .vt{writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;letter-spacing:.34em;color:var(--mut);text-transform:uppercase}
-.rail .id{writing-mode:vertical-rl;font-size:10px;letter-spacing:.2em;color:var(--mut)}
-.shell{margin-left:52px}
-@media(max-width:720px){.rail{display:none}.shell{margin-left:0}}
-/* ── top bar ── */
-.bar{display:flex;align-items:center;height:64px;padding:0 30px;border-bottom:1px solid var(--line);position:relative;z-index:10}
-.brand{display:flex;align-items:center;gap:12px;font-family:var(--disp);font-weight:700;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
-.crest{width:30px;height:30px;border:1px solid var(--deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;background:var(--deep);color:var(--cream)}
-.bar nav{margin-left:auto;display:flex;align-items:center;gap:4px}
-.bar nav a{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sub);padding:9px 14px}.bar nav a:hover{color:var(--ink)}
-.enter{border:1px solid var(--accent);background:var(--accent);color:var(--cream)!important;padding:11px 20px!important;font-weight:700}
-.enter:hover{background:var(--accent2)}
-.xbtn{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border:1px solid var(--line2);color:var(--ink);transition:.14s}
-.xbtn:hover{background:var(--deep);color:var(--cream);border-color:var(--deep)}
-.wrap{padding:0 30px;position:relative;z-index:5}
-/* ── HERO: asymmetric split ── */
-.hero{display:grid;grid-template-columns:1.35fr .95fr;gap:0;border-bottom:1px solid var(--line)}
-@media(max-width:900px){.hero{grid-template-columns:1fr}}
-.hero .L{padding:64px 40px 54px 30px;border-right:1px solid var(--line)}
-@media(max-width:900px){.hero .L{border-right:0;border-bottom:1px solid var(--line);padding:48px 24px}}
-.stamp{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line2);padding:8px 14px;font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--ink)}
-.stamp .b{width:6px;height:6px;background:var(--accent);animation:bl 1.4s steps(1) infinite}
-.giant{font-family:var(--disp);font-weight:700;text-transform:uppercase;line-height:.86;letter-spacing:-.03em;margin-top:30px;font-size:clamp(40px,10.5vw,152px);color:var(--deep)}
-.giant .o{color:var(--bg);-webkit-text-stroke:1.6px var(--deep)}
-.tagline{margin-top:26px;font-size:14px;line-height:1.75;color:var(--sub);max-width:520px}
-.tagline b{color:var(--ink);font-weight:600}
-.heroCta{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
-.btn{font-family:var(--mono);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line2);padding:15px 26px;cursor:pointer;background:transparent;color:var(--ink);display:inline-block}
-.btn.solid{background:var(--accent);color:var(--cream);border-color:var(--accent)}.btn.solid:hover{background:var(--accent2)}.btn:hover{border-color:var(--ink)}
-/* readout panel (right) — dark insert */
-.hero .R{padding:40px 30px;display:flex;flex-direction:column;justify-content:center}
-.rd{border:1px solid var(--deep);background:var(--deep);color:var(--cream)}
-.rd .hd{display:flex;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(244,245,249,.16);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--creamsub)}
-.rd .big{padding:26px 18px 8px;font-size:56px;font-weight:700;letter-spacing:-.03em;line-height:1}
-.rd .cap{padding:0 18px 22px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--creamsub)}
-.rd .split{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid rgba(244,245,249,.16)}
-.rd .cell{padding:16px 18px}.rd .cell+.cell{border-left:1px solid rgba(244,245,249,.16)}
-.rd .cell .l{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--creamsub)}
-.rd .cell .v{font-size:24px;font-weight:700;margin-top:7px;letter-spacing:-.02em}
-.cursor{display:inline-block;width:11px;height:1.05em;background:var(--cream);vertical-align:-2px;margin-left:2px;animation:bl 1s steps(1) infinite}
-/* ── THE NUMBER band ── */
-.number{border-bottom:1px solid var(--line);padding:54px 30px;display:flex;align-items:flex-end;gap:34px;flex-wrap:wrap}
-.number .huge{font-family:var(--disp);font-weight:700;font-size:clamp(58px,15vw,240px);line-height:.8;letter-spacing:-.04em;color:var(--deep)}
-.number .side{padding-bottom:14px}
-.number .side .l{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent)}
-.number .side p{margin-top:12px;max-width:340px;font-size:13px;line-height:1.7;color:var(--sub)}
-/* ── MANIFEST rows ── */
-.mani{border-bottom:1px solid var(--line)}
-.mrow{display:grid;grid-template-columns:120px 1fr 2fr;gap:20px;align-items:baseline;padding:30px;border-top:1px solid var(--line);transition:.15s}
-.mrow:first-child{border-top:0}
-.mrow:hover{background:var(--deep);color:var(--cream)}
-.mrow:hover .mn,.mrow:hover .md{color:var(--creamsub)}
-.mrow .mn{font-size:13px;letter-spacing:.14em;color:var(--accent)}
-.mrow h3{font-family:var(--disp);font-weight:600;font-size:26px;text-transform:uppercase;letter-spacing:-.01em}
-.mrow .md{font-size:13px;line-height:1.65;color:var(--sub)}
-@media(max-width:720px){.mrow{grid-template-columns:1fr;gap:8px}}
-.sechead{padding:44px 30px 4px;font-size:11px;letter-spacing:.3em;text-transform:uppercase;color:var(--mut)}
+body{margin:0;background:var(--page);color:var(--ink);font:13px/1.65 verdana,geneva,tahoma,sans-serif;
+  background-image:radial-gradient(rgba(0,82,255,.10) 1px,transparent 1px);background-size:22px 22px}
+a{color:var(--blue);text-decoration:underline}
+a:hover{color:var(--blue2)}
+.col{max-width:920px;margin:0 auto;padding:26px 14px 60px}
+h1,h2,h3{font-family:georgia,'times new roman',times,serif;color:var(--deep);font-weight:700;line-height:1.25;margin:0 0 10px}
+h1{font-size:26px}h2{font-size:20px}h3{font-size:16px;margin-bottom:6px}
+p{margin:0 0 12px}
+small,.small{font-size:11px}
+/* ── window chrome ── */
+.win{background:var(--paper);border:2px solid;border-color:var(--hilite) var(--shadow2) var(--shadow2) var(--hilite);
+  box-shadow:3px 3px 0 rgba(10,29,77,.22);margin:0 0 24px}
+.tbar{display:flex;align-items:center;gap:8px;padding:5px 8px;color:#fff;
+  background:linear-gradient(90deg,var(--deep),var(--blue) 55%,var(--blue2));
+  font:bold 12px verdana,geneva,tahoma,sans-serif;letter-spacing:.02em}
+.tbar .t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tbar .b{width:18px;height:16px;background:var(--paper2);color:var(--ink);border:2px solid;
+  border-color:var(--hilite) var(--shadow2) var(--shadow2) var(--hilite);
+  font:bold 10px/12px verdana;text-align:center;flex:none;user-select:none}
+.pad{padding:18px 20px}
+@media(max-width:560px){.pad{padding:14px 12px}}
+/* ── buttons ── */
+.btn{display:inline-block;background:var(--paper2);color:var(--ink);text-decoration:none;
+  border:2px solid;border-color:var(--hilite) var(--shadow2) var(--shadow2) var(--hilite);
+  padding:8px 18px;font:bold 12px verdana;margin:4px 10px 4px 0}
+.btn:active{border-color:var(--shadow2) var(--hilite) var(--hilite) var(--shadow2)}
+.btn.primary{background:var(--blue);color:#fff}
+.btn:hover{color:var(--deep)}.btn.primary:hover{color:#fff;background:var(--blue2)}
+/* ── status bar ── */
+.status{background:var(--deep);color:#bcd0ff;border:2px solid;border-color:var(--shadow2) var(--hilite) var(--hilite) var(--shadow2);
+  padding:6px 10px;font:bold 11px "courier new",monospace;letter-spacing:.04em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.status b{color:#fff}
+.status .ok{color:#7ee08a}
+/* ── feature grid ── */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.cellb{padding:14px 18px;border-top:1px dotted var(--shadow);}
+.grid2 .cellb:nth-child(odd){border-right:1px dotted var(--shadow)}
+@media(max-width:640px){.grid2 .cellb{border-right:0!important}}
+/* ── programs ── */
+.prog{border-top:1px solid var(--shadow);padding:14px 20px}
+.prog:first-of-type{border-top:0}
+.phead{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.badge{display:inline-block;background:var(--liveBg);color:var(--live);border:1px solid var(--live);
+  font:bold 10px verdana;padding:1px 7px;letter-spacing:.08em;vertical-align:2px}
+.badge.soon{background:#ffefd6;color:#8a5200;border-color:#8a5200}
+.plinks{font-size:12px;margin-top:4px}
+/* ── quotes table ── */
+table.q{width:100%;border-collapse:collapse;font-size:13px}
+table.q td{padding:8px 10px;border-bottom:1px dotted var(--shadow)}
+table.q tr:last-child td{border-bottom:0}
+table.q td.v{text-align:right;font:bold 14px "courier new",monospace;color:var(--deep);white-space:nowrap}
+table.q td.l{color:var(--sub)}
+/* ── facts table ── */
+table.f{width:100%;border-collapse:collapse;font-size:12.5px}
+table.f td{padding:7px 10px;border-bottom:1px dotted var(--shadow);vertical-align:top}
+table.f td:first-child{width:34%;color:var(--sub);font-weight:bold}
+table.f tr:last-child td{border-bottom:0}
 /* ── FAQ ── */
-.faq{border-bottom:1px solid var(--line)}
-.fitem{border-top:1px solid var(--line);padding:0 30px}
-.fitem:first-child{border-top:0}
-.fq{display:flex;align-items:center;gap:18px;padding:26px 0;cursor:pointer;list-style:none}
-.fq::-webkit-details-marker{display:none}
-.fq .qn{font-size:12px;letter-spacing:.12em;color:var(--accent);min-width:34px}
-.fq .qt{font-family:var(--disp);font-weight:600;font-size:19px;letter-spacing:-.01em}
-.fq .pm{margin-left:auto;font-size:20px;color:var(--mut);transition:.2s}
-details[open] .fq .pm{transform:rotate(45deg);color:var(--ink)}
-.fa{padding:0 0 28px 52px;max-width:760px;font-size:13.5px;line-height:1.8;color:var(--sub)}
-.fa b{color:var(--ink);font-weight:600}
-@media(max-width:720px){.fa{padding-left:0}}
-/* ── redacted excerpt ── */
-.excerpt{padding:54px 30px 60px}
-.exbox{border:1px solid var(--deep);background:var(--deep);color:var(--cream);padding:40px}
-.exbox .meta{display:flex;justify-content:space-between;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--creamsub);border-bottom:1px solid rgba(244,245,249,.16);padding-bottom:16px;margin-bottom:24px}
-.exbox p{font-size:16px;line-height:1.9;color:var(--cream)}
-.rdc{background:var(--cream);color:transparent;padding:0 4px;user-select:none}
-.exbox .sig{margin-top:26px;font-size:12px;letter-spacing:.1em;color:var(--creamsub)}
-/* ── closing CTA ── */
-.close{padding:64px 30px;text-align:center;border-bottom:1px solid var(--line)}
-.close .big{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,68px);text-transform:uppercase;letter-spacing:-.02em;line-height:.98}
-.close p{color:var(--sub);font-size:13px;margin-top:18px}
-.close .heroCta{justify-content:center;margin-top:28px}
-footer{padding:32px 30px;color:var(--mut);font-size:11px;line-height:1.85;letter-spacing:.02em}
-footer a{color:var(--ink)}
-</style></head><body>
+details{border-top:1px dotted var(--shadow);padding:10px 20px}
+details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:bold;color:var(--deep)}
+summary:hover{color:var(--blue)}
+details p{margin:10px 0 4px;color:var(--sub)}
+/* ── misc ── */
+.hr{border:0;border-top:1px solid var(--shadow);margin:14px 0}
+.note{background:var(--paper2);border:1px solid var(--shadow);padding:10px 14px;font-size:11.5px;color:var(--sub)}
+.ca{display:inline-block;background:#fff;border:1px solid var(--shadow);font:12px "courier new",monospace;padding:4px 8px;cursor:pointer}
+.marq{color:var(--sub);font-size:11px;text-align:center;margin:0 0 18px;letter-spacing:.06em}
+footer{color:var(--sub);font-size:11px;text-align:center;line-height:1.8}
+.excerpt{font-family:georgia,serif;font-size:14px;font-style:italic;color:var(--sub)}
+.excerpt b{color:var(--deep)}
+</style></head>
+<body>
+<div class="col">
 
-<!-- ticker tape -->
-<div class="tape"><div class="track" id="tape">— INITIALIZING —</div></div>
+<div class="marq">★ · GRAHAM CAPITAL MANAGEMENT · SPONSOR OF THE GRAHAM RESERVE INSTRUMENT · ON BASE (CHAIN ID 8453) · ★</div>
 
-<!-- side rail -->
-<div class="rail">
-  <div class="rec"><span class="dot"></span>REC</div>
-  <div class="vt">NAV-BACKED RESERVE // BASE</div>
-  <div class="id">GRM·01</div>
+<!-- ══ WELCOME.HTM ══ -->
+<div class="win">
+  <div class="tbar"><span class="t">Welcome.htm :: Graham Shareholder Information System</span><span class="b">_</span><span class="b">□</span><span class="b">×</span></div>
+  <div class="pad">
+    <h1>Welcome to Graham Capital Management.</h1>
+    <p>GRAHAM is a reserve instrument trading on <b>Base</b>, named for Benjamin Graham's net-net: a stock priced below its liquid assets cannot stay cheap forever. The fund's treasury holds the USDC that backs it, enrolled shareholders receive a distribution every 8 hours, and the programs listed below are running today.</p>
+    <p>
+      <a class="btn primary" href="/app">Open Shareholder Services</a>
+      <a class="btn" href="/docs">Read the Prospectus</a>
+      <a class="btn" href="https://x.com/GrahamOnBase" target="_blank" rel="noopener">The Fund on X</a>
+      <span id="caWrap" style="display:none">&nbsp;<span class="ca" id="caChip" title="Copy contract address">CA: <span id="caChipT"></span> ⧉</span></span>
+    </p>
+    <div class="status">STATUS: <span class="ok">MARKET OPEN.</span> NAV <b id="stNav">—</b>. PREMIUM <b id="stPrem">—</b>. NEXT DISTRIBUTION <b id="stEta">—</b>.</div>
+  </div>
+  <div class="grid2">
+    <div class="cellb"><h3>NAV floor</h3><p class="small" style="margin:0">Every GRAHAM is backed by the treasury's risk-free reserves — a hard floor you redeem against, 1:1, at any hour. The reserves stand above that floor today.</p></div>
+    <div class="cellb"><h3>Buyback program</h3><p class="small" style="margin:0">If GRAHAM trades below NAV, the treasury bids for it and retires what it buys. The bid has stood since the market opened.</p></div>
+    <div class="cellb"><h3>Management without managers</h3><p class="small" style="margin:0">Enroll GRAHAM and dividends arrive every 8 hours, set by an immutable formula rather than a committee.</p></div>
+    <div class="cellb"><h3>A press wired to the vault</h3><p class="small" style="margin:0">The distributor can never mint past the treasury's risk-free value — enforced every epoch, by the contract, not an admin.</p></div>
+  </div>
+  <div class="pad" style="padding-top:10px;border-top:1px solid var(--shadow)"><small>Full mechanics are disclosed in the <a href="/docs">Prospectus</a> →</small></div>
 </div>
 
-<div class="shell">
-  <!-- top bar -->
-  <div class="bar">
-    <div class="brand"><span class="crest">G</span>Graham</div>
-    <nav>
-      <button id="caChip" title="Copy contract address" style="display:none;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line2);color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.04em;padding:9px 13px;cursor:pointer;margin-right:6px">
-        <span style="color:var(--mut)">CA</span><span id="caChipT"></span><span style="color:var(--accent)">COPY</span></button>
-      <a href="/app">App</a><a href="/docs">Prospectus</a><a href="#faq">FAQ</a>
-      <a class="xbtn" href="https://x.com/GrahamOnBase" target="_blank" rel="noopener" aria-label="Graham on X"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
-      <a class="btn enter" href="/app">Enter Shareholder Services →</a>
-    </nav>
+<!-- ══ PROGRAMS.HTM ══ -->
+<div class="win">
+  <div class="tbar"><span class="t">Programs.htm :: running today</span><span class="b">_</span><span class="b">□</span><span class="b">×</span></div>
+  <div class="prog">
+    <div class="phead"><h3>Shareholder Dividend Program</h3><span class="badge">LIVE</span></div>
+    <p class="small" style="margin:6px 0 0">Enroll GRAHAM, receive sGRAHAM, and a distribution compounds into your balance every 8 hours — nothing to claim, ever. The rate follows the market premium by formula and is capped so that every GRAHAM stays backed by the treasury. Redemption is 1:1 and immediate.</p>
+    <div class="plinks"><a href="/app">Open Shareholder Services</a> → &nbsp;·&nbsp; <a href="/docs#dividends">Mechanics</a> →</div>
   </div>
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="L">
-      <span class="stamp"><span class="b"></span>Reserve Protocol · Immutable Policy</span>
-      <div class="giant">Graham<br>Cap<span class="o">ital</span></div>
-      <div class="tagline">Named for Benjamin Graham's net-net: a stock priced below its liquid assets cannot stay cheap forever. Every GRAHAM is backed by the protocol's risk-free treasury — a hard floor you redeem against, <b>1:1</b>, at any hour. Above it, the press runs, scaled to the premium the market will pay.</div>
-      <div class="heroCta"><a class="btn solid" href="/app">Enter Shareholder Services →</a><a class="btn" href="/docs">Read the Prospectus</a></div>
-    </div>
-    <div class="R">
-      <div class="rd">
-        <div class="hd"><span>LIVE READOUT</span><span id="rdClock">◵ SYNC</span></div>
-        <div class="big" id="rdNav">—</div>
-        <div class="cap">NAV · risk-free floor / GRAHAM<span class="cursor"></span></div>
-        <div class="split">
-          <div class="cell"><div class="l">Premium</div><div class="v" id="rdPrem">—</div></div>
-          <div class="cell"><div class="l">Dividend APY</div><div class="v" id="rdApy">—</div></div>
-        </div>
-        <div class="split" style="border-top:1px solid rgba(244,245,249,.16)">
-          <div class="cell"><div class="l">Treasury</div><div class="v" id="rdTre">—</div></div>
-          <div class="cell"><div class="l">Supply</div><div class="v" id="rdSup">—</div></div>
-        </div>
-      </div>
-    </div>
+  <div class="prog">
+    <div class="phead"><h3>Equity Bond Desk</h3><span class="badge">LIVE</span></div>
+    <p class="small" style="margin:6px 0 0">Subscribe with USDC and receive GRAHAM at a discount to the open market on a two-day vest, with no slippage. The price is floored at NAV, so every subscription grows the backing behind the fund — the floor only rises.</p>
+    <div class="plinks"><a href="/app">Subscribe at the Bond Desk</a> → &nbsp;·&nbsp; <a href="/docs#bonds">Mechanics</a> →</div>
   </div>
-
-  <!-- THE NUMBER -->
-  <div class="number">
-    <div class="huge" id="bigPrem">—</div>
-    <div class="side">
-      <div class="l">Premium over NAV</div>
-      <p>The multiple the market pays over backing. It is the only input to the dividend — zero payout at 1×, saturating at 1.75×. The fund prints exactly the confidence extended to it. No more.</p>
-    </div>
+  <div class="prog">
+    <div class="phead"><h3>Loopback</h3><span class="badge">LIVE</span></div>
+    <p class="small" style="margin:6px 0 0">The fund's credit facility. Borrow USDC against enrolled shares, buy more GRAHAM, and enroll it — a Lombard leverage loop in a single transaction, with a live health meter. Leverage magnifies gains and losses alike.</p>
+    <div class="plinks"><a href="/app">Open the facility</a> → &nbsp;·&nbsp; <a href="/docs#loopback">Mechanics</a> →</div>
   </div>
-
-  <!-- MANIFEST -->
-  <div class="sechead">// Instruments</div>
-  <div class="mani">
-    <div class="mrow"><div class="mn">01 · ENROLL</div><h3>Dividend Program</h3><div class="md">Enroll GRAHAM, receive sGRAHAM, compound every distribution automatically. Nothing to claim. Redemption is 1:1 and immediate — the floor never moves.</div></div>
-    <div class="mrow"><div class="mn">02 · BOND</div><h3>Equity Bond Desk</h3><div class="md">Subscribe in USDC for GRAHAM notes at a discount to market, floored at NAV so every sale grows backing. Notes vest over two days.</div></div>
-    <div class="mrow"><div class="mn">03 · LOOP</div><h3>Loopback Credit</h3><div class="md">Borrow USDC against enrolled shares, buy more GRAHAM, enroll it — a Lombard leverage loop in a single transaction, with a live health meter.</div></div>
-    <div class="mrow"><div class="mn">04 · BACKING</div><h3>The Reserve Cap</h3><div class="md">The distributor can never mint past the treasury's risk-free value. The printing press is wired to the graham door — enforced every epoch, by the contract, not an admin.</div></div>
+  <div class="prog">
+    <div class="phead"><h3>The Reserve Cap</h3><span class="badge">LIVE</span></div>
+    <p class="small" style="margin:6px 0 0">The standing policy. Emissions are wired to the treasury's risk-free value — the distributor can never mint past the backing. Enforced every epoch, by the contract, not an admin.</p>
+    <div class="plinks"><a href="/docs#policy">Mechanics</a> →</div>
   </div>
+</div>
 
-  <!-- FAQ -->
-  <div class="sechead" id="faq">// Frequently Asked</div>
-  <div class="faq">
-    <details class="fitem"><summary class="fq"><span class="qn">Q1</span><span class="qt">What is NAV?</span><span class="pm">+</span></summary>
-      <div class="fa">Net Asset Value — the risk-free treasury value divided by total supply, expressed per token. It is the <b>backing floor</b>: the treasury value standing behind every GRAHAM, which rises as bonds and buys add to reserves. It is both the value you redeem against and the reference point the entire dividend policy is measured from.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q2</span><span class="qt">What is the premium, and why does it matter?</span><span class="pm">+</span></summary>
-      <div class="fa">The premium <b>P = market price / NAV</b> — how much more the market pays than the backing. It is the <b>only input to the dividend</b>. At or below NAV (P ≤ 1), the dividend is zero. At a 1.75× premium or higher, it pays the full rate. The fund emits exactly the confidence the market extends to it.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q3</span><span class="qt">How are dividends paid?</span><span class="pm">+</span></summary>
-      <div class="fa">Enroll GRAHAM to receive <b>sGRAHAM</b>. Every 8-hour epoch, the distribution compounds directly into your balance — nothing to claim, ever. The rate follows <b>R_MAX × clamp((P − 1)/(K − 1), 0, 1)</b>, with R_MAX 0.45% per epoch and K = 1.75. Three distributions a day.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q4</span><span class="qt">Can I redeem at any time?</span><span class="pm">+</span></summary>
-      <div class="fa">Yes. Redemption between sGRAHAM and GRAHAM is <b>1:1 and immediate</b> at Shareholder Services — no lockups, no queues, no notice period. The floor is always there.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q5</span><span class="qt">How does the Bond Desk work?</span><span class="pm">+</span></summary>
-      <div class="fa">Subscribe in USDC for GRAHAM notes priced at a discount to market, with a hard floor at NAV — <b>bondPrice = max(market × (1 − discount), NAV)</b>. Because the floor is NAV, a bond can never sell GRAHAM below its existing backing, so every subscription is <b>accretive</b>: the floor only rises. Notes vest over two days.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q6</span><span class="qt">What is Loopback?</span><span class="pm">+</span></summary>
-      <div class="fa">The Lombard credit facility. Borrow USDC against your enrolled sGRAHAM — up to <b>50% of collateral value</b> — buy more GRAHAM, and enroll it, all in one transaction. The result is leveraged exposure to the dividend, shown live in the simulator with an effective-APY readout and a health/headroom meter. Leverage magnifies gains and losses alike.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q7</span><span class="qt">What actually backs the token?</span><span class="pm">+</span></summary>
-      <div class="fa">USDC reserves held in the treasury. The <b>reserve cap</b> means the distributor can never mint past the treasury's risk-free value — the emissions are wired to the backing, enforced every epoch by the contract, not by any administrator. No admin can alter the epoch, R_MAX, K, the source pair, or the fee split.</div></details>
-    <details class="fitem"><summary class="fq"><span class="qn">Q8</span><span class="qt">Which chain, and how do I get USDC?</span><span class="pm">+</span></summary>
-      <div class="fa">Graham lives on <b>Base</b>. Acquire USDC on Base through the Base app or Wallet, or by bridging, then connect an EVM wallet at Shareholder Services to purchase, enroll, bond, and loop.</div></details>
+<!-- ══ QUOTES.HTM ══ -->
+<div class="win">
+  <div class="tbar"><span class="t">Quotes.htm :: read from the chain</span><span class="b">_</span><span class="b">□</span><span class="b">×</span></div>
+  <div class="pad" style="padding-bottom:8px"><h2 style="margin-bottom:4px">Live Figures</h2></div>
+  <table class="q">
+    <tr><td class="l">Market price</td><td class="v" id="qMkt">—</td></tr>
+    <tr><td class="l">NAV, the backing behind each GRAHAM</td><td class="v" id="qNav">—</td></tr>
+    <tr><td class="l">Premium to NAV</td><td class="v" id="qPrem">—</td></tr>
+    <tr><td class="l">Dividend rate, annualized at the current premium</td><td class="v" id="qApy">—</td></tr>
+    <tr><td class="l">Reserves in the treasury</td><td class="v" id="qTre">—</td></tr>
+    <tr><td class="l">GRAHAM in issue</td><td class="v" id="qSup">—</td></tr>
+    <tr><td class="l">Standing buyback bid</td><td class="v" id="qBid">—</td></tr>
+    <tr><td class="l">Next distribution</td><td class="v" id="qEta">—</td></tr>
+  </table>
+  <div class="pad" style="padding-top:10px"><small id="qStamp">Reading from Base…</small><br><small>The full quarterly report is in <a href="/app">Shareholder Services</a> →</small></div>
+</div>
+
+<!-- ══ FUND.HTM ══ -->
+<div class="win">
+  <div class="tbar"><span class="t">Fund.htm :: fund facts</span><span class="b">_</span><span class="b">□</span><span class="b">×</span></div>
+  <div class="pad" style="padding-bottom:8px"><h2 style="margin-bottom:4px">The Fund</h2></div>
+  <table class="f">
+    <tr><td>Instrument</td><td>GRAHAM, backed by reserves, on Base (chain id 8453)</td></tr>
+    <tr><td>Reserve asset</td><td>USDC, held in the fund's treasury</td></tr>
+    <tr><td>NAV floor</td><td>Redemption between sGRAHAM and GRAHAM is 1:1 and immediate — no lockups, no queues</td></tr>
+    <tr><td>Dividend cadence</td><td>Every 8 hours, 3 times daily. Rate set by formula, capped by reserves.</td></tr>
+    <tr><td>Emissions policy</td><td class="excerpt">rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1). At or below NAV the dividend is <b>zero</b>. At a 1.75× premium it pays the full <b>0.45% per epoch</b>. No admin can alter the epoch, R_MAX, K, the source pair, or the fee split. The only way to change the dividend policy is to deploy a different fund.</td></tr>
+    <tr><td>Bond pricing</td><td>bondPrice = max(market × (1 − discount), NAV) — floored at NAV so every sale grows backing. Two-day vest.</td></tr>
+    <tr><td>Loopback</td><td>Borrow USDC up to 50% of enrolled collateral value; loop in one transaction; live health meter.</td></tr>
+  </table>
+</div>
+
+<!-- ══ FAQ.HTM ══ -->
+<div class="win">
+  <div class="tbar"><span class="t">Faq.htm :: frequently asked</span><span class="b">_</span><span class="b">□</span><span class="b">×</span></div>
+  <details><summary>What is NAV?</summary><p>Net Asset Value — the risk-free treasury value divided by total supply, per token. It is the backing floor: the value you redeem against, and the reference point the entire dividend policy is measured from. It rises as bonds and buys add to reserves.</p></details>
+  <details><summary>What is the premium, and why does it matter?</summary><p>The premium P = market price / NAV — how much more the market pays than the backing. It is the only input to the dividend. At or below NAV the dividend is zero; at a 1.75× premium or higher it pays the full rate. The fund emits exactly the confidence the market extends to it.</p></details>
+  <details><summary>How are dividends paid?</summary><p>Enroll GRAHAM to receive sGRAHAM. Every 8-hour epoch the distribution compounds directly into your balance — nothing to claim. The rate follows R_MAX × clamp((P − 1)/(K − 1), 0, 1), with R_MAX 0.45% per epoch and K = 1.75.</p></details>
+  <details><summary>Can I redeem at any time?</summary><p>Yes. Redemption between sGRAHAM and GRAHAM is 1:1 and immediate at Shareholder Services — no lockups, no queues, no notice period.</p></details>
+  <details><summary>How does the Bond Desk work?</summary><p>Subscribe in USDC for GRAHAM notes priced at a discount to market with a hard floor at NAV. Because the floor is NAV, a bond can never sell GRAHAM below its existing backing — every subscription is accretive. Notes vest over two days.</p></details>
+  <details><summary>What is Loopback?</summary><p>The Lombard credit facility. Borrow USDC against enrolled sGRAHAM — up to 50% of collateral value — buy more GRAHAM, and enroll it, in one transaction. The simulator shows effective APY and a health/headroom meter. Leverage magnifies gains and losses alike.</p></details>
+  <details><summary>What actually backs the token?</summary><p>USDC reserves held in the treasury. The reserve cap means the distributor can never mint past the treasury's risk-free value — enforced every epoch by the contract, not an administrator.</p></details>
+  <details><summary>Which chain, and how do I get USDC?</summary><p>Graham lives on Base. Acquire USDC on Base through the Base app or by bridging, then connect an EVM wallet at Shareholder Services to purchase, enroll, bond, and loop.</p></details>
+</div>
+
+<!-- ══ CLOSING ══ -->
+<div class="win">
+  <div class="tbar"><span class="t">Offering.htm :: a floor beneath you, a press above</span><span class="b">_</span><span class="b">□</span><span class="b">×</span></div>
+  <div class="pad" style="text-align:center">
+    <h2>A floor beneath you. A press above.</h2>
+    <p class="small">Purchase · Enroll · Bond · Loop — at Shareholder Services.</p>
+    <p style="margin-bottom:4px"><a class="btn primary" href="/app">Enter Shareholder Services</a><a class="btn" href="/docs">Read the Prospectus</a></p>
   </div>
+</div>
 
-  <!-- REDACTED EXCERPT -->
-  <div class="excerpt">
-    <div class="sechead" style="padding:0 0 18px">// Prospectus — Excerpt §2</div>
-    <div class="exbox">
-      <div class="meta"><span>DOC · GRM-PROSPECTUS</span><span>EMISSIONS POLICY</span></div>
-      <p>rate = R_MAX × clamp((P − 1) / (K − 1), 0, 1). At or below NAV the dividend is <span class="rdc">absolutely</span> zero. At a 1.75× premium it pays the <span class="rdc">full</span> 0.45% per epoch. No admin can alter the epoch, R_MAX, K, the <span class="rdc">source pair</span>, or the fee split. The only way to change the dividend policy is to deploy a <span class="rdc">different fund</span>.</p>
-      <div class="sig">— filed on Base · immutable at deployment</div>
-    </div>
-  </div>
+<div class="note">Graham Capital Management is not affiliated with NetNet Capital. "Fund", "shares", "dividend", and "prospectus" are thematic terms. Nothing on this page is financial advice — do your own research.</div>
+<br>
+<footer>GRAHAM CAPITAL MANAGEMENT // <a href="/app">Shareholder Services</a> · <a href="/docs">Prospectus</a> · Base<br>Best viewed at 800×600 in any browser made this century.</footer>
 
-  <!-- CLOSING CTA -->
-  <div class="close">
-    <div class="big">A floor beneath you.<br>A press above.</div>
-    <p>Purchase · Enroll · Bond · Loop — at Shareholder Services.</p>
-    <div class="heroCta"><a class="btn solid" href="/app">Enter Shareholder Services →</a><a class="btn" href="/docs">Read the Prospectus</a></div>
-  </div>
-
-  <footer>
-    GRAHAM CAPITAL // <a href="/app">App</a> · <a href="/docs">Prospectus</a> · Base<br>
-    Not affiliated with NetNet Capital. "Fund", "shares", "dividend", and "prospectus" are thematic terms. Nothing here is financial advice — do your own research.
-  </footer>
 </div>
 
 <script>
-fetch('/api/metrics').then(r=>r.json()).then(m=>{
-  const f=(n)=>'$'+(Math.abs(n)>=1e6?(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e3?(n/1e3).toFixed(1)+'K':n.toFixed(2));
-  const t=(n)=>Math.abs(n)>=1e6?(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e3?Math.round(n).toLocaleString():n.toFixed(0);
-  document.getElementById('rdNav').textContent=f(m.nav);
-  document.getElementById('rdPrem').textContent=m.premium.toFixed(2)+'×';
-  document.getElementById('rdApy').textContent=Math.round(m.apy).toLocaleString()+'%';
-  document.getElementById('rdTre').textContent=f(m.treasury);
-  document.getElementById('rdSup').textContent=t(m.supply);
-  document.getElementById('bigPrem').textContent=m.premium.toFixed(1)+'×';
-  document.getElementById('rdClock').textContent='● LIVE';
-  const seg=['NAV '+f(m.nav),'PREMIUM '+m.premium.toFixed(2)+'×','DIVIDEND APY '+Math.round(m.apy).toLocaleString()+'%','TREASURY '+f(m.treasury),'MARKET '+f(m.marketPrice),'SUPPLY '+t(m.supply)+' GRAHAM','BUYBACK '+f(m.buybackBid),'EPOCH 0.45% / 8H'];
-  document.getElementById('tape').innerHTML=Array(3).fill(seg.map(s=>{const p=s.split(' ');const v=p.pop();return '<span>'+p.join(' ')+'</span> <b>'+v+'</b>';}).join(' &nbsp;·&nbsp; ')).join(' &nbsp;·&nbsp; ');
-}).catch(()=>{document.getElementById('tape').textContent='— OFFLINE —';});
-fetch('/api/config').then(r=>r.json()).then(cfg=>{
-  if(cfg.mint){const chip=document.getElementById('caChip');chip.style.display='inline-flex';
-    document.getElementById('caChipT').textContent=cfg.mint.slice(0,6)+'…'+cfg.mint.slice(-4);
-    chip.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(cfg.mint);const b=chip.querySelector('span:last-child');b.textContent='COPIED';setTimeout(()=>b.textContent='COPY',1200);};}
-}).catch(()=>{});
+(function(){
+  var f=function(n){return '$'+(Math.abs(n)>=1e6?(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e3?(n/1e3).toFixed(1)+'K':n.toFixed(2));};
+  var t=function(n){return Math.abs(n)>=1e6?(n/1e6).toFixed(2)+'M':Math.abs(n)>=1e3?Math.round(n).toLocaleString():n.toFixed(0);};
+  function eta(){var EP=8*3600e3;var r=EP-(Date.now()%EP);var s=Math.floor(r/1e3);
+    var h=String(Math.floor(s/3600)).padStart(2,'0'),m=String(Math.floor(s%3600/60)).padStart(2,'0'),x=String(s%60).padStart(2,'0');
+    return h+':'+m+':'+x;}
+  function tick(){var e=eta();var a=document.getElementById('stEta'),b=document.getElementById('qEta');if(a)a.textContent=e;if(b)b.textContent=e;}
+  setInterval(tick,1000);tick();
+  fetch('/api/metrics').then(function(r){return r.json()}).then(function(m){
+    document.getElementById('stNav').textContent=f(m.nav);
+    document.getElementById('stPrem').textContent=m.premium.toFixed(2)+'×';
+    document.getElementById('qMkt').textContent=f(m.marketPrice);
+    document.getElementById('qNav').textContent=f(m.nav);
+    document.getElementById('qPrem').textContent=m.premium.toFixed(2)+'×';
+    document.getElementById('qApy').textContent=Math.round(m.apy).toLocaleString()+'%';
+    document.getElementById('qTre').textContent=f(m.treasury);
+    document.getElementById('qSup').textContent=t(m.supply)+' GRAHAM';
+    document.getElementById('qBid').textContent=f(m.buybackBid);
+    document.getElementById('qStamp').textContent='Read from Base at '+new Date().toUTCString().replace('GMT','UTC');
+  }).catch(function(){document.getElementById('qStamp').textContent='— OFFLINE —';});
+  fetch('/api/config').then(function(r){return r.json()}).then(function(cfg){
+    if(cfg.mint){document.getElementById('caWrap').style.display='inline';
+      document.getElementById('caChipT').textContent=cfg.mint.slice(0,6)+'…'+cfg.mint.slice(-4);
+      document.getElementById('caChip').onclick=function(){
+        if(navigator.clipboard)navigator.clipboard.writeText(cfg.mint);
+        var el=document.getElementById('caChipT'),old=el.textContent;el.textContent='COPIED';
+        setTimeout(function(){el.textContent=old;},1200);};}
+  }).catch(function(){});
+})();
 </script>
 </body></html>

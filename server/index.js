@@ -105,8 +105,10 @@ if (!db.navHist) {
   const now = Date.now(), f = db.floor; db.navHist = [];
   for (let i = 29; i >= 0; i--) db.navHist.push({ t: now - i * 3600000, nav: +(f * (1 - i * 0.006)).toFixed(6) });
 }
-// activate a 48h boost from first boot (or honor an explicit env timestamp)
-if (db.boostUntil == null) db.boostUntil = +(process.env.BOOST_UNTIL || (Date.now() + BOOST_HOURS * 3600000));
+// boost is opt-in: off unless BOOST_UNTIL is set (timestamp ms) or BOOST_START=1 arms a fresh 48h window
+if (process.env.BOOST_UNTIL) db.boostUntil = +process.env.BOOST_UNTIL;
+else if (process.env.BOOST_START === '1' && !(db.boostUntil > Date.now())) db.boostUntil = Date.now() + BOOST_HOURS * 3600000;
+else if (db.boostUntil == null || !process.env.BOOST_START) db.boostUntil = 0;
 const boostActive = () => Date.now() < db.boostUntil;
 function markFloor(navNow) {
   if (navNow > db.floor + 1e-9) { db.floor = navNow; db.floorRaises++; db.floorSince = Date.now(); }
